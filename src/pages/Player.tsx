@@ -6,7 +6,7 @@ import { useAppSelector } from "../store";
 import { useCurrentLesson } from "../store/slices/player";
 import { useEffect } from "react";
 
-export function Player() {
+export function player() {
   const modules = useAppSelector(state => { 
     return state.player.course.modules 
   })
