@@ -1,40 +1,45 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { useAppSelector } from "..";
+import { api } from "../../lib/axios";
 
+interface Course {
+  id: number
+  modules: Array<{
+    id: number
+    title: string
+    lessons: Array<{
+      id: string
+      title: string
+      duration: string
+    }>
+  }>
+}
+
+export interface PlayerState {
+  course: Course | null
+  currentModuleIndex: number
+  currentLessonIndex: number
+  isLoading: boolean
+}
+
+const initialState: PlayerState = {
+  course: null,
+  currentModuleIndex: 0,
+  currentLessonIndex: 0,
+  isLoading: true
+}
+
+export const loadCourse = createAsyncThunk(
+  'player/load',
+  async () => {
+   const response =  await api.get('/courses/1')
+
+    return response.data
+  }
+)
 export const playerSlice = createSlice({
   name: 'player',
-  initialState: {
-    course: {
-      modules: [
-        {
-          id: '1',
-          title: 'Iniciando com React',
-          lessons: [
-            { id: 'Jai8w6K_GnY', title: 'CSS Modules', duration: '13:45' },
-            { id: 'w-DW4DhDfcw', title: 'Estilização do Post', duration: '10:05' },
-            { id: 'D83-55LUdKE', title: 'Componente: Header', duration: '06:33' },
-            { id: 'W_ATsETujaY', title: 'Componente: Sidebar', duration: '09:12' },
-            { id: 'Pj8dPeameYo', title: 'CSS Global', duration: '03:23' },
-            { id: '8KBq2vhwbac', title: 'Form de comentários', duration: '11:34' },
-          ],
-        },
-        {
-          id: '2',
-          title: 'Estrutura da aplicação',
-          lessons: [
-            { id: 'gE48FQXRZ_o', title: 'Componente: Comment', duration: '13:45' },
-            { id: 'Ng_Vk4tBl0g', title: 'Responsividade', duration: '10:05' },
-            { id: 'h5JA3wfuW1k', title: 'Interações no JSX', duration: '06:33' },
-            { id: '1G0vSTqWELg', title: 'Utilizando estado', duration: '09:12' },
-          ],
-        },
-      ],
-    },
-    // aula em destaque
-    currentModuleIndex: 0,
-    currentLessonIndex: 0,
-
-  },
+  initialState,
 
   reducers: {
     play: (state, action: PayloadAction<[number, number]>) => {
@@ -43,13 +48,13 @@ export const playerSlice = createSlice({
     },
     next: (state) => {
       const nextLessonIndex = state.currentLessonIndex + 1
-      const existNextLesson = state.course.modules[state.currentModuleIndex].lessons[nextLessonIndex]
+      const existNextLesson = state.course?.modules[state.currentModuleIndex].lessons[nextLessonIndex]
 
       if (existNextLesson) {
         state.currentLessonIndex = nextLessonIndex
       } else {
         const nextModuleIndex = state.currentModuleIndex + 1
-        const existNextModule = state.course.modules[nextModuleIndex]
+        const existNextModule = state.course?.modules[nextModuleIndex]
 
         if (existNextModule) {
           state.currentModuleIndex = nextModuleIndex
@@ -57,6 +62,15 @@ export const playerSlice = createSlice({
         }
       }
     }
+  },
+  extraReducers(builder) {
+    builder.addCase(loadCourse.pending, (state) => {
+      state.isLoading = true
+    })
+    builder.addCase(loadCourse.fulfilled, (state, action) => {
+      state.course = action.payload
+      state.isLoading = false
+    })
   },
 })
 
@@ -67,8 +81,8 @@ export const useCurrentLesson = () => {
  return  useAppSelector(state => {
     const { currentLessonIndex, currentModuleIndex } = state.player
     // geting  data from the  current lesson 
-    const currentModule = state.player.course.modules[currentModuleIndex]
-    const currentLesson = currentModule.lessons[currentLessonIndex]
+    const currentModule = state.player.course?.modules[currentModuleIndex]
+    const currentLesson = currentModule?.lessons[currentLessonIndex]
      
     return { currentModule, currentLesson }
   })
