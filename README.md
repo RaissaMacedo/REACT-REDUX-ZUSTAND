@@ -1,4 +1,4 @@
-# VideoLessonsRedux
+# Video Lessons Redux
 
 ## Índice
 
