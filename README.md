@@ -9,7 +9,7 @@
 
 ## Descrição
 
-A Aplicação Player exibe vídeo-aulas organizadas em módulos e aulas. Esta aplicação utiliza a biblioteca Redux para o gerenciamento de estado e Tailwind CSS para a estilização da interface.
+A Aplicação Player exibe vídeo-aulas organizadas em módulos e aulas. Utiliza o Redux para gerenciamento de estado, aplicando o conceito de Thunk para operações assíncronas. A interface da aplicação é estilizada com Tailwind CSS.
 
 
 ## Instalação
